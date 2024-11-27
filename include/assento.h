@@ -1,36 +1,17 @@
 #ifndef ASSENTO_H
 #define ASSENTO_H
 
-#include <string>
+// Definição de estrutura para representar um assento
+typedef struct {
+    int numero;        // Número do assento
+    int codigo_voo;    // Código do voo a que o assento pertence
+    char status[10];   // Status do assento: "ocupado" ou "livre"
+} Assento;
 
-class Assento {
-private:
-    int numeroAssento;        // Número do assento
-    std::string codigoVoo;    // Código do voo associado
-    bool ocupado;             // Status do assento (ocupado ou livre)
+// Funções para manipulação de assentos
+void cadastrar_assento(int codigo_voo, int numero);
+void alterar_status_assento(int codigo_voo, int numero, const char* novo_status);
+Assento* buscar_assento(int codigo_voo, int numero);
+void listar_assentos(int codigo_voo);
 
-public:
-    // Construtores
-    Assento();
-    Assento(int numero, const std::string& codigo, bool status = false);
-
-    // Getters e Setters
-    int getNumeroAssento() const;
-    void setNumeroAssento(int numero);
-
-    std::string getCodigoVoo() const;
-    void setCodigoVoo(const std::string& codigo);
-
-    bool isOcupado() const;
-    void setOcupado(bool status);
-
-    // Outros métodos
-    void reservar();
-    void liberar();
-    std::string statusAssento() const;
-
-    // Destrutor
-    ~Assento();
-};
-
-#endif // ASSENTO_H
+#endif
