@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "assento.h"
+
+int main() {
+    int opcao;
+    int codigo_voo, numero_assento;
+    char novo_status[10];
+
+    // Menu de operações
+    do {
+        printf("\n----- Menu -----\n");
+        printf("1. Cadastrar Assento\n");
+        printf("2. Alterar Status de Assento\n");
+        printf("3. Buscar Assento\n");
+        printf("4. Listar Assentos de Voo\n");
+        printf("5. Sair\n");
+        printf("Escolha uma opcao: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                // Cadastrar Assento
+                printf("Digite o código do voo: ");
+                scanf("%d", &codigo_voo);
+                printf("Digite o número do assento: ");
+                scanf("%d", &numero_assento);
+                cadastrar_assento(codigo_voo, numero_assento);
+                printf("Assento cadastrado com sucesso!\n");
+                break;
+
+            case 2:
+                // Alterar Status de Assento
+                printf("Digite o código do voo: ");
+                scanf("%d", &codigo_voo);
+                printf("Digite o número do assento: ");
+                scanf("%d", &numero_assento);
+                printf("Digite o novo status (ocupado/livre): ");
+                scanf("%s", novo_status);
+                alterar_status_assento(codigo_voo, numero_assento, novo_status);
+                printf("Status do assento alterado com sucesso!\n");
+                break;
+
+            case 3:
+                // Buscar Assento
+                printf("Digite o código do voo: ");
+                scanf("%d", &codigo_voo);
+                printf("Digite o número do assento: ");
+                scanf("%d", &numero_assento);
+                Assento* assento = buscar_assento(codigo_voo, numero_assento);
+                if (assento != NULL) {
+                    printf("Assento encontrado: Número %d, Status %s\n", assento->numero, assento->status);
+                    free(assento); // Libera a memória após o uso
+                } else {
+                    printf("Assento não encontrado.\n");
+                }
+                break;
+
+            case 4:
+                // Listar Assentos de um Voo
+                printf("Digite o código do voo para listar os assentos: ");
+                scanf("%d", &codigo_voo);
+                listar_assentos(codigo_voo);
+                break;
+
+            case 5:
+                printf("Saindo do programa...\n");
+                break;
+
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+
+    } while (opcao != 5);
+
+    return 0;
+}
