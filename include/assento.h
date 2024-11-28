@@ -1,34 +1,104 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include "assento.h"
 
-#ifndef ASSENTO_H
-#define ASSENTO_H
+using namespace std;
 
-#include <string>
+// Construtor da classe Assento
+Assento::Assento(int numero, int codigo_voo, const string& status)
+    : numero(numero), codigo_voo(codigo_voo), status(status) {}
 
-class Assento {
-private:
-    int numero;             // Número do assento
-    int codigo_voo;         // Código do voo a que o assento pertence
-    std::string status;     // Status do assento: "ocupado" ou "livre"
+// Getters e Setters
+int Assento::getNumero() const {
+    return numero;
+}
 
-public:
-    // Construtor
-    Assento(int numero = 0, int codigo_voo = 0, const std::string& status = "livre");
+void Assento::setNumero(int numero) {
+    this->numero = numero;
+}
 
-    // Métodos getters e setters
-    int getNumero() const;
-    void setNumero(int numero);
+int Assento::getCodigoVoo() const {
+    return codigo_voo;
+}
 
-    int getCodigoVoo() const;
-    void setCodigoVoo(int codigo_voo);
+void Assento::setCodigoVoo(int codigo_voo) {
+    this->codigo_voo = codigo_voo;
+}
 
-    std::string getStatus() const;
-    void setStatus(const std::string& status);
+string Assento::getStatus() const {
+    return status;
+}
 
-    // Métodos de manipulação
-    static void cadastrarAssento(int codigo_voo, int numero);
-    static void alterarStatusAssento(int codigo_voo, int numero, const std::string& novo_status);
-    static Assento* buscarAssento(int codigo_voo, int numero);
-    static void listarAssentos(int codigo_voo);
-};
+void Assento::setStatus(const string& status) {
+    this->status = status;
+}
 
-#endif
+// Métodos Estáticos
+
+void Assento::cadastrarAssento(int codigo_voo, int numero) {
+    ofstream arquivo("assentos.bin", ios::binary | ios::app);
+    if (!arquivo) {
+        cerr << "Erro ao abrir o arquivo de assentos." << endl;
+        return;
+    }
+
+    Assento novo_assento(numero, codigo_voo, "livre");
+    arquivo.write(reinterpret_cast<const char*>(&novo_assento), sizeof(Assento));
+    arquivo.close();
+}
+
+void Assento::alterarStatusAssento(int codigo_voo, int numero, const string& novo_status) {
+    fstream arquivo("assentos.bin", ios::binary | ios::in | ios::out);
+    if (!arquivo) {
+        cerr << "Erro ao abrir o arquivo de assentos." << endl;
+        return;
+    }
+
+    Assento assento;
+    while (arquivo.read(reinterpret_cast<char*>(&assento), sizeof(Assento))) {
+        if (assento.getCodigoVoo() == codigo_voo && assento.getNumero() == numero) {
+            assento.setStatus(novo_status);
+            arquivo.seekp(-static_cast<int>(sizeof(Assento)), ios::cur);
+            arquivo.write(reinterpret_cast<const char*>(&assento), sizeof(Assento));
+            break;
+        }
+    }
+    arquivo.close();
+}
+
+Assento* Assento::buscarAssento(int codigo_voo, int numero) {
+    ifstream arquivo("assentos.bin", ios::binary);
+    if (!arquivo) {
+        cerr << "Erro ao abrir o arquivo de assentos." << endl;
+        return nullptr;
+    }
+
+    Assento* assento_encontrado = nullptr;
+    Assento assento;
+    while (arquivo.read(reinterpret_cast<char*>(&assento), sizeof(Assento))) {
+        if (assento.getCodigoVoo() == codigo_voo && assento.getNumero() == numero) {
+            assento_encontrado = new Assento(assento.getNumero(), assento.getCodigoVoo(), assento.getStatus());
+            break;
+        }
+    }
+    arquivo.close();
+    return assento_encontrado;
+}
+
+void Assento::listarAssentos(int codigo_voo) {
+    ifstream arquivo("assentos.bin", ios::binary);
+    if (!arquivo) {
+        cerr << "Erro ao abrir o arquivo de assentos." << endl;
+        return;
+    }
+
+    Assento assento;
+    cout << "Assentos para o voo " << codigo_voo << ":\n";
+    while (arquivo.read(reinterpret_cast<char*>(&assento), sizeof(Assento))) {
+        if (assento.getCodigoVoo() == codigo_voo) {
+            cout << "Assento " << assento.getNumero() << ": " << assento.getStatus() << endl;
+        }
+    }
+    arquivo.close();
+}
