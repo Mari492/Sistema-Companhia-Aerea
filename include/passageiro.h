@@ -18,7 +18,6 @@ public:
     string getNome() const;
     string getEndereco() const;
     string getTelefone() const;
-    bool isFidelidade() const;
 
     void setNome(const string& nome);
     void setEndereco(const string& endereco);
