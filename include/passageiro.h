@@ -6,13 +6,14 @@ using namespace std;
 
 class Passageiro {
 private:
+    static int contador;
     int codigo;
     string nome;
     string endereco;
     string telefone;
 
 public:
-    Passageiro(int codigo, string nome, string endereco, string telefone);
+    Passageiro(string nome, string endereco, string telefone);
 
     int getCodigo() const;
     string getNome() const;
