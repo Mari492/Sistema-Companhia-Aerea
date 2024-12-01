@@ -77,6 +77,33 @@ void testeSequenciaDeCodigos() {
     }
 }
 
+//Teste programa de fidelidade
+void testeProgramaDeFidelidade() {
+    Passageiro p1("Diego de Paula", "Rua A", "12345-6789"); //sem fidelidade
+
+    Passageiro p2("Gabriel Tavares", "Rua B", "98765-4321", true);
+
+    cout << "\nTeste 1: Adicionar pontos a passageiro sem fidelidade" << endl;
+    p1.adicionarPontos(10);
+
+    cout << "\nTeste 2: Adicionar pontos a passageiro com fidelidade" << endl;
+    p2.adicionarPontos(10);
+
+    cout << "\nTeste 3: Exibir informacoes dos passageiros" << endl;
+    p1.exibirInformacoes();
+    p2.exibirInformacoes();
+
+    cout << "\nTeste 4: Ativar fidelidade e adicionar pontos" << endl;
+    p1.ativarFidelidade();
+    p1.adicionarPontos(20);
+    p1.exibirInformacoes();
+
+    cout << "\nTeste 5: Resetar pontos" << endl;
+    p2.resetarPontos();
+    p2.exibirInformacoes();
+}
+
+
 int main() {
     cout << "Iniciando testes da classe Passageiro" << endl;
 
@@ -86,6 +113,7 @@ int main() {
     testeStringsVazias();
     testeMultiplasAtualizacoes();
     testeSequenciaDeCodigos();
+    testeProgramaDeFidelidade();
 
     cout << "Todos os testes finalizados." << endl;
     return 0;
