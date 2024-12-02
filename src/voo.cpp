@@ -1,175 +1,126 @@
+#include "voo.h"
+#include "tripulacao.h"
+#include <fstream>
 #include <iostream>
-#include <vector>
-#include <string>
-#include <ctime>
 #include <sstream>
 
-using namespace std;
-
-// Fun√ß√£o para formatar a data e hora
-string obterDataHoraAtual() {
-    time_t agora = time(0);
-    tm *ltm = localtime(&agora);
-    stringstream ss;
-    ss << 1900 + ltm->tm_year << "-" << 1 + ltm->tm_mon << "-" << ltm->tm_mday
-       << " " << 1 + ltm->tm_hour << ":" << 1 + ltm->tm_min;
-    return ss.str();
+Voo::Voo(int codigo, string data, string hora, string origem, string destino,
+         int codigoAviao, int codigoPiloto, int codigoCopiloto,
+         vector<int> codigoComissarios, double tarifa)
+    : codigo(codigo), data(data), hora(hora), origem(origem), destino(destino),
+      codigoAviao(codigoAviao), codigoPiloto(codigoPiloto), codigoCopiloto(codigoCopiloto),
+      codigoComissarios(codigoComissarios), tarifa(tarifa) {
+    status = validarTripulacao();
 }
 
-// Classe que representa um tripulante (piloto, copiloto ou comiss√°rio)
-class Tripulante {
-public:
-    string codigo;
-    string nome;
-    string cargo;
-
-    Tripulante(string c, string n, string ca) : codigo(c), nome(n), cargo(ca) {}
-};
-
-// Classe que representa um passageiro
-class Passageiro {
-public:
-    string nome;
-    string cpf;
-    bool pago;
-
-    Passageiro(string n, string c, bool p) : nome(n), cpf(c), pago(p) {}
-};
-
-// Classe que representa um voo
-class Voo {
-public:
-    string codigoVoo;
-    string dataVoo;
-    string horaVoo;
-    string origem;
-    string destino;
-    string codigoAviao;
-    string status; // "Ativo" ou "Inativo"
-    double tarifa;
-    vector<Tripulante> tripulacao;
-    vector<Passageiro> passageiros;
-
-    Voo(string cv, string d, string h, string o, string des, string ca, double t)
-        : codigoVoo(cv), dataVoo(d), horaVoo(h), origem(o), destino(des), codigoAviao(ca), tarifa(t), status("Inativo") {}
-
-    // Fun√ß√£o para adicionar tripulantes
-    void adicionarTripulante(Tripulante t) {
-        tripulacao.push_back(t);
+//MÈtodo para validar tripulaÁ„o mÌnima usando Tripulacao
+bool Voo::validarTripulacao() const {
+    if (!Tripulacao::validarCodigo(codigoPiloto) ||
+        !Tripulacao::validarCodigo(codigoCopiloto)) {
+        return false; // Piloto ou copiloto n„o s„o v·lidos
     }
 
-    // Fun√ß√£o para adicionar passageiros
-    void adicionarPassageiro(Passageiro p) {
-        passageiros.push_back(p);
-    }
-
-    // Fun√ß√£o para ativar o voo
-    bool ativarVoo() {
-        bool temPiloto = false;
-        bool temCopiloto = false;
-
-        // Verificar a presen√ßa de um piloto e copiloto
-        for (auto& t : tripulacao) {
-            if (t.cargo == "Piloto") temPiloto = true;
-            if (t.cargo == "Copiloto") temCopiloto = true;
-        }
-
-        // Se houver um piloto e um copiloto, o voo √© ativado
-        if (temPiloto && temCopiloto) {
-            status = "Ativo";
-            cout << "Voo " << codigoVoo << " ativado com sucesso!" << endl;
-            return true;
-        } else {
-            cout << "Erro: √â necessario pelo menos um piloto e um copiloto para ativar o voo." << endl;
-            return false;
+    for (int comissario : codigoComissarios) {
+        if (!Tripulacao::validarCodigo(comissario)) {
+            return false; // Algum comiss·rio n„o È v·lido
         }
     }
 
-    // Fun√ß√£o para exibir informa√ß√µes do voo
-    void exibirInformacoes() {
-        cout << "Codigo do Voo: " << codigoVoo << endl;
-        cout << "Data do Voo: " << dataVoo << " | Hora: " << horaVoo << endl;
-        cout << "Origem: " << origem << " | Destino: " << destino << endl;
-        cout << "C√≥digo do Avi√£o: " << codigoAviao << endl;
-        cout << "Status: " << status << endl;
-        cout << "Tarifa: R$ " << tarifa << endl;
+    return true; // TripulaÁ„o v·lida
+}
 
-        // Exibir tripula√ß√£o
-        cout << "Tripula√ß√£o:" << endl;
-        for (auto& t : tripulacao) {
-            cout << t.cargo << ": " << t.nome << " (Codigo: " << t.codigo << ")" << endl;
+int Voo::getCodigo() const { return codigo; }
+string Voo::getData() const { return data; }
+string Voo::getHora() const { return hora; }
+string Voo::getOrigem() const { return origem; }
+string Voo::getDestino() const { return destino; }
+int Voo::getCodigoAviao() const { return codigoAviao; }
+int Voo::getCodigoPiloto() const { return codigoPiloto; }
+int Voo::getCodigoCopiloto() const { return codigoCopiloto; }
+vector<int> Voo::getCodigoComissarios() const { return codigoComissarios; }
+bool Voo::getStatus() const { return status; }
+double Voo::getTarifa() const { return tarifa; }
+
+void Voo::setData(const string& novaData) { data = novaData; }
+void Voo::setHora(const string& novaHora) { hora = novaHora; }
+void Voo::setOrigem(const string& novaOrigem) { origem = novaOrigem; }
+void Voo::setDestino(const string& novoDestino) { destino = novoDestino; }
+void Voo::setTarifa(double novaTarifa) { tarifa = novaTarifa; }
+void Voo::setStatus(bool novoStatus) { status = novoStatus; }
+
+void Voo::exibirInformacoes() const {
+    cout << "CÛdigo do Voo: " << codigo << endl;
+    cout << "Data: " << data << endl;
+    cout << "Hora: " << hora << endl;
+    cout << "Origem: " << origem << endl;
+    cout << "Destino: " << destino << endl;
+    cout << "CÛdigo do Avi„o: " << codigoAviao << endl;
+    cout << "CÛdigo do Piloto: " << codigoPiloto << endl;
+    cout << "CÛdigo do Copiloto: " << codigoCopiloto << endl;
+    cout << "Comiss·rios: ";
+    for (int comissario : codigoComissarios) {
+        cout << comissario << " ";
+    }
+    cout << endl;
+    cout << "Status: " << (status ? "Ativo" : "Inativo") << endl;
+    cout << "Tarifa: " << tarifa << endl;
+}
+
+// PersistÍncia em arquivo
+void Voo::salvarEmArquivo() const {
+    ofstream arquivo("voos.txt", ios::app);
+    if (!arquivo) {
+        throw runtime_error("Erro ao abrir o arquivo para salvar o voo.");
+    }
+    arquivo << codigo << "|" << data << "|" << hora << "|" << origem << "|"
+            << destino << "|" << codigoAviao << "|" << codigoPiloto << "|"
+            << codigoCopiloto << "|";
+    for (size_t i = 0; i < codigoComissarios.size(); ++i) {
+        arquivo << codigoComissarios[i];
+        if (i != codigoComissarios.size() - 1) arquivo << ",";
+    }
+    arquivo << "|" << status << "|" << tarifa << "\n";
+    arquivo.close();
+}
+
+// Carregar um voo a partir do arquivo
+Voo Voo::carregarVoo(int codigoBusca) {
+    ifstream arquivo("voos.txt");
+    if (!arquivo) {
+        throw runtime_error("Erro ao abrir o arquivo para carregar o voo.");
+    }
+    string linha;
+    while (getline(arquivo, linha)) {
+        stringstream ss(linha);
+        string item;
+        vector<string> campos;
+        while (getline(ss, item, '|')) {
+            campos.push_back(item);
         }
-
-        // Exibir passageiros
-        cout << "Passageiros:" << endl;
-        for (auto& p : passageiros) {
-            cout << "Nome: " << p.nome << " | CPF: " << p.cpf << " | Pago: " << (p.pago ? "Sim" : "N√£o") << endl;
+        if (stoi(campos[0]) == codigoBusca) {
+            vector<int> comissarios;
+            stringstream ssComissarios(campos[7]);
+            string comissario;
+            while (getline(ssComissarios, comissario, ',')) {
+                comissarios.push_back(stoi(comissario));
+            }
+            return Voo(stoi(campos[0]), campos[1], campos[2], campos[3], campos[4],
+                       stoi(campos[5]), stoi(campos[6]), stoi(campos[7]),
+                       comissarios, stod(campos[9]));
         }
     }
-};
+    throw runtime_error("Voo n„o encontrado.");
+}
 
-// Classe que representa uma reserva
-class Reserva {
-public:
-    Passageiro passageiro;
-    Voo* voo;
-
-    Reserva(Passageiro p, Voo* v) : passageiro(p), voo(v) {}
-
-    // Realiza a reserva
-    void realizarReserva() {
-        if (voo->status == "Ativo") {
-            voo->adicionarPassageiro(passageiro);
-            cout << "Reserva realizada com sucesso para " << passageiro.nome << " no voo " << voo->codigoVoo << endl;
-        } else {
-            cout << "Erro: O voo n√£o est√° ativo. Nao a reserva." << endl;
-        }
+// Listar todos os voos
+void Voo::listarVoos() {
+    ifstream arquivo("voos.txt");
+    if (!arquivo) {
+        throw runtime_error("Erro ao abrir o arquivo para listar os voos.");
     }
-};
-
-int main() {
-    // Criando alguns tripulantes
-    Tripulante piloto("P001", "Carlos Silva", "Piloto");
-    Tripulante copiloto("C001", "Ana Souza", "Copiloto");
-    Tripulante comissario("CM001", "Mariana Costa", "Comiss√°rio");
-
-    // Criando um voo
-    Voo voo1("1234", "2024-11-30", "14:30", "S√£o Paulo", "Rio de Janeiro", "A001", 350.50);
-
-    // Adicionando tripulantes ao voo
-    voo1.adicionarTripulante(piloto);
-    voo1.adicionarTripulante(copiloto);
-    voo1.adicionarTripulante(comissario);
-
-    // Tentar ativar o voo (deve ser poss√≠vel porque temos piloto e copiloto)
-    voo1.ativarVoo();
-
-    // Criando alguns passageiros
-    Passageiro p1("Joao Oliveira", "123.456.789-00", true);
-    Passageiro p2("Maria Santos", "987.654.321-00", false);
-
-    // Realizando as reservas
-    Reserva reserva1(p1, &voo1);
-    reserva1.realizarReserva();
-
-    Reserva reserva2(p2, &voo1);
-    reserva2.realizarReserva();
-
-    // Exibindo informa√ß√µes do voo
-    voo1.exibirInformacoes();
-
-    // Criando outro voo sem piloto
-    Voo voo2("5678", "2024-12-01", "08:00", "Rio de Janeiro", "Bras√≠lia", "A002", 500.00);
-
-    // Adicionando tripulantes (sem piloto)
-    voo2.adicionarTripulante(copiloto);
-    voo2.adicionarTripulante(comissario);
-
-    // Tentar ativar o voo (n√£o vai funcionar porque falta um piloto)
-    voo2.ativarVoo();
-
-    // Pausa o programa at√© que o usu√°rio pressione Enter
-    cin.get();
-
-    return 0;
+    string linha;
+    while (getline(arquivo, linha)) {
+        cout << linha << endl;
+    }
+    arquivo.close();
 }

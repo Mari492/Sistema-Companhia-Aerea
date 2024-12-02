@@ -4,7 +4,7 @@ int Tripulacao::contadorCodigo = 1;
 unordered_set<int> Tripulacao::codigos;
 
 Tripulacao::Tripulacao(string nome, string cargo, string telefone) : nome(nome), cargo(cargo), telefone(telefone) {
-    // Garante que o cÃ³digo gerado Ã© Ãºnico
+    // Garante que o código gerado é único
     while (codigos.find(contadorCodigo) != codigos.end())
     {
         contadorCodigo++;
@@ -29,6 +29,20 @@ void Tripulacao::exibirInformacoes() const {
     cout << "Telefone: " << telefone << endl;
 }
 
-Tripulacao::~Tripulacao() {
-    codigos.erase(codigo); // Remove o cÃ³digo do conjunto
+// Métodos estáticos
+bool Tripulacao::validarCodigo(int codigo) {
+    return codigos.find(codigo) != codigos.end();
 }
+
+void Tripulacao::adicionarCodigo(int codigo) {
+    codigos.insert(codigo);
+}
+
+void Tripulacao::removerCodigo(int codigo) {
+    codigos.erase(codigo);
+}
+
+Tripulacao::~Tripulacao() {
+    codigos.erase(codigo); // Remove o código do conjunto
+}
+

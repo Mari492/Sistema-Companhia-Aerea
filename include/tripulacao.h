@@ -29,6 +29,11 @@ public:
 
     void exibirInformacoes() const;
 
+    //Métodos estáticos para acesso aos membros estáticos (outras classes poderem acessar)
+    static bool validarCodigo(int codigo);
+    static void adicionarCodigo(int codigo);
+    static void removerCodigo(int codigo);
+
     ~Tripulacao(); // Libera o código do membro ao ser excluido
 };
 
