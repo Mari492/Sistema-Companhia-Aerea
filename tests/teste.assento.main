@@ -1,84 +1,67 @@
 #include <iostream>
-#include <string>
-#include "assento.h"
+#include <vector>
 
-using namespace std;
+class Assento {
+private:
+    int numero;
+    bool ocupado;
+
+public:
+    Assento(int numero) : numero(numero), ocupado(false) {}
+
+    int getNumero() const {
+        return numero;
+    }
+
+    bool isOcupado() const {
+        return ocupado;
+    }
+
+    void ocupar() {
+        if (!ocupado) {
+            ocupado = true;
+        } else {
+            throw std::runtime_error("Assento já está ocupado!");
+        }
+    }
+
+    void liberar() {
+        if (ocupado) {
+            ocupado = false;
+        } else {
+            throw std::runtime_error("Assento já está desocupado!");
+        }
+    }
+};
+
+// Função de teste para verificar a lógica dos assentos
+void testarAssentos() {
+    std::vector<Assento> assentos;
+    for (int i = 1; i <= 10; ++i) {
+        assentos.emplace_back(i); // Criando 10 assentos
+    }
+
+    // Teste de ocupação e liberação
+    try {
+        assentos[0].ocupar();
+        std::cout << "Assento " << assentos[0].getNumero() << " ocupado com sucesso.\n";
+
+        assentos[0].liberar();
+        std::cout << "Assento " << assentos[0].getNumero() << " liberado com sucesso.\n";
+
+        // Tentando ocupar novamente
+        assentos[0].ocupar();
+        std::cout << "Assento " << assentos[0].getNumero() << " ocupado novamente com sucesso.\n";
+
+        // Testando erro de liberação dupla
+        assentos[0].liberar();
+        assentos[0].liberar(); // Isso deve lançar um erro
+    } catch (const std::exception &e) {
+        std::cerr << "Erro: " << e.what() << "\n";
+    }
+}
 
 int main() {
-    int opcao;
-    int codigo_voo, numero_assento;
-    string novo_status;
-
-    // Menu de operações
-    do {
-        cout << "\n----- Menu -----\n";
-        cout << "1. Cadastrar Assento\n";
-        cout << "2. Alterar Status de Assento\n";
-        cout << "3. Buscar Assento\n";
-        cout << "4. Listar Assentos de Voo\n";
-        cout << "5. Sair\n";
-        cout << "Escolha uma opcao: ";
-        cin >> opcao;
-
-        switch (opcao) {
-            case 1: {
-                // Cadastrar Assento
-                cout << "Digite o código do voo: ";
-                cin >> codigo_voo;
-                cout << "Digite o número do assento: ";
-                cin >> numero_assento;
-                Assento::cadastrarAssento(codigo_voo, numero_assento);
-                cout << "Assento cadastrado com sucesso!\n";
-                break;
-            }
-
-            case 2: {
-                // Alterar Status de Assento
-                cout << "Digite o código do voo: ";
-                cin >> codigo_voo;
-                cout << "Digite o número do assento: ";
-                cin >> numero_assento;
-                cout << "Digite o novo status (ocupado/livre): ";
-                cin >> novo_status;
-                Assento::alterarStatusAssento(codigo_voo, numero_assento, novo_status);
-                cout << "Status do assento alterado com sucesso!\n";
-                break;
-            }
-
-            case 3: {
-                // Buscar Assento
-                cout << "Digite o código do voo: ";
-                cin >> codigo_voo;
-                cout << "Digite o número do assento: ";
-                cin >> numero_assento;
-                Assento* assento = Assento::buscarAssento(codigo_voo, numero_assento);
-                if (assento != nullptr) {
-                    cout << "Assento encontrado: Número " << assento->getNumero() 
-                         << ", Status: " << assento->getStatus() << endl;
-                    delete assento; // Libera a memória após o uso
-                } else {
-                    cout << "Assento não encontrado.\n";
-                }
-                break;
-            }
-
-            case 4: {
-                // Listar Assentos de um Voo
-                cout << "Digite o código do voo para listar os assentos: ";
-                cin >> codigo_voo;
-                Assento::listarAssentos(codigo_voo);
-                break;
-            }
-
-            case 5:
-                cout << "Saindo do programa...\n";
-                break;
-
-            default:
-                cout << "Opção inválida. Tente novamente.\n";
-        }
-
-    } while (opcao != 5);
-
+    testarAssentos();
     return 0;
 }
