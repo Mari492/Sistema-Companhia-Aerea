@@ -1,47 +1,23 @@
-#ifndef VOOSSEGURO_H
-#define VOOSSEGURO_H
-
+#include <iostream>
 #include <string>
-#include <vector>
+#include <ctime>
+#include <sstream>
+
 using namespace std;
 
-// Classe que representa um tripulante (piloto, copiloto ou comissário)
-class Tripulante {
-private:
-    string codigo;
-    string nome;
-    string cargo;
-
-public:
-    // Construtor
-    Tripulante(string c, string n, string ca);
-
-    // Métodos de acesso (getters)
-    string getCodigo();
-    string getNome();
-    string getCargo();
-};
-
-// Classe que representa um passageiro
-class Passageiro {
-private:
-    string nome;
-    string cpf;
-    bool pago;
-
-public:
-    // Construtor
-    Passageiro(string n, string c, bool p);
-
-    // Métodos de acesso
-    string getNome();
-    string getCpf();
-    bool isPago();
-};
+// Função para formatar a data e hora
+string obterDataHoraAtual() {
+    time_t agora = time(0);
+    tm *ltm = localtime(&agora);
+    stringstream ss;
+    ss << 1900 + ltm->tm_year << "-" << 1 + ltm->tm_mon << "-" << ltm->tm_mday
+       << " " << 1 + ltm->tm_hour << ":" << 1 + ltm->tm_min;
+    return ss.str();
+}
 
 // Classe que representa um voo
 class Voo {
-private:
+public:
     string codigoVoo;
     string dataVoo;
     string horaVoo;
@@ -50,40 +26,59 @@ private:
     string codigoAviao;
     string status; // "Ativo" ou "Inativo"
     double tarifa;
-    vector<Tripulante> tripulacao;
-    vector<Passageiro> passageiros;
+    string piloto;
+    string copiloto;
 
-public:
-    // Construtor
-    Voo(string cv, string d, string h, string o, string des, string ca, double t);
-
-    // Funções para adicionar tripulantes e passageiros
-    void adicionarTripulante(Tripulante t);
-    void adicionarPassageiro(Passageiro p);
+    Voo(string cv, string d, string h, string o, string des, string ca, double t, string p, string c)
+        : codigoVoo(cv), dataVoo(d), horaVoo(h), origem(o), destino(des), codigoAviao(ca), tarifa(t), status("Inativo"), piloto(p), copiloto(c) {}
 
     // Função para ativar o voo
-    bool ativarVoo();
+    bool ativarVoo() {
+        // Verificar se há piloto e copiloto
+        if (!piloto.empty() && !copiloto.empty()) {
+            status = "Ativo";
+            cout << "Voo " << codigoVoo << " ativado com sucesso!" << endl;
+            return true;
+        } else {
+            cout << "Erro: E necessario ter pelo menos um piloto e um copiloto para ativar o voo." << endl;
+            return false;
+        }
+    }
 
     // Função para exibir informações do voo
-    void exibirInformacoes();
-
-    // Função para obter o código do voo
-    string getCodigoVoo();
+    void exibirInformacoes() {
+        cout << "Codigo do Voo: " << codigoVoo << endl;
+        cout << "Data do Voo: " << dataVoo << " | Hora: " << horaVoo << endl;
+        cout << "Origem: " << origem << " | Destino: " << destino << endl;
+        cout << "Codigo do Aviao: " << codigoAviao << endl;
+        cout << "Status: " << status << endl;
+        cout << "Tarifa: R$ " << tarifa << endl;
+        cout << "Piloto: " << piloto << endl;
+        cout << "Copiloto: " << copiloto << endl;
+    }
 };
 
-// Classe que representa uma reserva
-class Reserva {
-private:
-    Passageiro passageiro;
-    Voo* voo;
+int main() {
+    // Criando um voo com piloto e copiloto
+    Voo voo1("1234", "2024-11-30", "14:30", "Sao Paulo", "Rio de Janeiro", "A001", 2500.00, "Jurandi Vitor (Piloto)", "Maristela Souza (Copiloto)");
 
-public:
-    // Construtor
-    Reserva(Passageiro p, Voo* v);
+    // Tentar ativar o voo (deve ser possível porque temos piloto e copiloto)
+    voo1.ativarVoo();
 
-    // Realiza a reserva
-    void realizarReserva();
-};
+    // Exibindo informações do voo
+    voo1.exibirInformacoes();
 
-#endif // VOOSSEGURO_H
-''
+    // Criando outro voo (sem piloto ou copiloto)
+    Voo voo2("5678", "2024-12-01", "08:00", "Rio de Janeiro", "Minas Gerais", "A002", 5000.00, "", "");
+
+    //Não vai ativar pois faltam o piloto e copiloto
+    voo2.ativarVoo();
+
+    // Exibindo informações do voo
+    voo2.exibirInformacoes();
+
+//Travar o programa
+    cin.get();
+
+    return 0;
+}
