@@ -1,80 +1,62 @@
-#include <stdio.h>
-#include <string.h>
 #include "assento.h"
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+#include <sstream>
+#include <fstream>
 
-// Função para cadastrar um assento
-void cadastrar_assento(int codigo_voo, int numero) {
-    FILE* arquivo = fopen("assentos.bin", "ab"); // Abertura do arquivo em modo append binário
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de assentos.\n");
-        return;
-    }
+using namespace std;
 
-    Assento novo_assento;
-    novo_assento.codigo_voo = codigo_voo;
-    novo_assento.numero = numero;
-    strcpy(novo_assento.status, "livre"); // Status inicial é "livre"
+vector<Assento> assentos;  
 
-    fwrite(&novo_assento, sizeof(Assento), 1, arquivo); // Escreve o assento no arquivo
-    fclose(arquivo);
+Assento::Assento(int codigoVoo, int numeroAssento)
+    : codigoVoo(codigoVoo), numeroAssento(numeroAssento), status(true) {}
+
+int Assento::getCodigoVoo() const {
+    return codigoVoo;
 }
 
-// Função para alterar o status de um assento
-void alterar_status_assento(int codigo_voo, int numero, const char* novo_status) {
-    FILE* arquivo = fopen("assentos.bin", "rb+");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de assentos.\n");
-        return;
-    }
-
-    Assento assento;
-    while (fread(&assento, sizeof(Assento), 1, arquivo)) {
-        if (assento.codigo_voo == codigo_voo && assento.numero == numero) {
-            // Encontrou o assento, altera o status
-            strcpy(assento.status, novo_status);
-            fseek(arquivo, -sizeof(Assento), SEEK_CUR); // Move o ponteiro para o início do assento encontrado
-            fwrite(&assento, sizeof(Assento), 1, arquivo); // Atualiza o assento
-            break;
-        }
-    }
-    fclose(arquivo);
+int Assento::getNumeroAssento() const {
+    return numeroAssento;
 }
 
-// Função para buscar um assento
-Assento* buscar_assento(int codigo_voo, int numero) {
-    FILE* arquivo = fopen("assentos.bin", "rb");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de assentos.\n");
-        return NULL;
-    }
-
-    Assento* assento_encontrado = NULL;
-    Assento assento;
-    while (fread(&assento, sizeof(Assento), 1, arquivo)) {
-        if (assento.codigo_voo == codigo_voo && assento.numero == numero) {
-            assento_encontrado = (Assento*)malloc(sizeof(Assento));
-            *assento_encontrado = assento; // Copia os dados para o retorno
-            break;
-        }
-    }
-    fclose(arquivo);
-    return assento_encontrado;
+bool Assento::getStatus() const {
+    return status;  // True para livre, false para ocupado
 }
 
-// Função para listar todos os assentos de um voo
-void listar_assentos(int codigo_voo) {
-    FILE* arquivo = fopen("assentos.bin", "rb");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo de assentos.\n");
-        return;
+bool Assento::reservarAssento() {
+    if (status) {
+        status = false;  // O assento foi reservado
+        return true;
     }
+    return false;  // O assento já está ocupado
+}
 
-    Assento assento;
-    printf("Assentos para o voo %d:\n", codigo_voo);
-    while (fread(&assento, sizeof(Assento), 1, arquivo)) {
-        if (assento.codigo_voo == codigo_voo) {
-            printf("Assento %d: %s\n", assento.numero, assento.status);
+// Inicializa os assentos de 0 a 60 para o voo com o código especificado
+void Assento::inicializarAssentos(int codigoVoo) {
+    for (int i = 0; i <= 60; ++i) {
+        Assento novoAssento(codigoVoo, i);
+        assentos.push_back(novoAssento);
+    }
+}
+
+// Busca um assento específico do voo e retorna o objeto do assento
+Assento Assento::buscarAssento(int codigoVoo, int numeroAssento) {
+    for (const auto& assento : assentos) {
+        if (assento.getCodigoVoo() == codigoVoo && assento.getNumeroAssento() == numeroAssento) {
+            return assento;
         }
     }
-    fclose(arquivo);
+    throw runtime_error("Assento não encontrado.");
+}
+
+// Lista todos os assentos de um voo
+void Assento::listarAssentos(int codigoVoo) {
+    cout << "Assentos para o voo " << codigoVoo << ":\n";
+    for (const auto& assento : assentos) {
+        if (assento.getCodigoVoo() == codigoVoo) {
+            cout << "Assento " << assento.getNumeroAssento() << ": "
+                 << (assento.getStatus() ? "Livre" : "Ocupado") << endl;
+        }
+    }
 }
