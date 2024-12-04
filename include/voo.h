@@ -3,9 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include "../include/tripulacao.h"
-
+#include "Tripulacao.h"
 using namespace std;
 
 class Voo {
@@ -15,46 +13,43 @@ private:
     string hora;
     string origem;
     string destino;
-    int codigoAviao;
-    int codigoPiloto;
-    int codigoCopiloto;
-    vector<int> codigoComissarios;
-    bool status;
+    string codigoAviao;
+    Tripulacao piloto;
+    Tripulacao copiloto;
+    vector<Tripulacao> comissarios;
+    bool ativo;
     double tarifa;
-
-    // Método para validar tripulação mínima
-    bool validarTripulacao() const;
+    vector<int> assentos; // Assentos representados como inteiros (-1 para livre, 1 para ocupado)
 
 public:
-    Voo(int codigo, string data, string hora, string origem, string destino,
-        int codigoAviao, int codigoPiloto, int codigoCopiloto,
-        vector<int> codigoComissarios, double tarifa);
+    // Construtor
+    Voo(int codigo, const string& data, const string& hora,
+        const string& origem, const string& destino, const string& codigoAviao,
+        Tripulacao piloto, Tripulacao copiloto, double tarifa, int numAssentos);
 
+    // Métodos getters
     int getCodigo() const;
-    string getData() const;
-    string getHora() const;
     string getOrigem() const;
     string getDestino() const;
-    int getCodigoAviao() const;
-    int getCodigoPiloto() const;
-    int getCodigoCopiloto() const;
-    vector<int> getCodigoComissarios() const;
-    bool getStatus() const;
-    double getTarifa() const;
+    bool isAtivo() const;
 
-    void setData(const string& novaData);
-    void setHora(const string& novaHora);
-    void setOrigem(const string& novaOrigem);
-    void setDestino(const string& novoDestino);
-    void setTarifa(double novaTarifa);
-    void setStatus(bool novoStatus);
+    // Métodos para ativar/desativar o voo
+    void ativar();
+    void desativar();
 
-    void exibirInformacoes() const;
+    // Verifica se o assento está disponível
+    bool verificarAssentoDisponivel(int numeroAssento) const;
 
-    // Métodos de persistência
-    void salvarEmArquivo() const;
-    static Voo carregarVoo(int codigo);
-    static void listarVoos();
+    // Ocupa um assento
+    void ocuparAssento(int numeroAssento);
+
+    // Libera um assento
+    void liberarAssento(int numeroAssento);
+
+    /* Métodos de salvar e carregar
+    void salvar(ofstream& arquivo) const;
+    void carregar(ifstream& arquivo);*/
 };
 
 #endif
+

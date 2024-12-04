@@ -1,126 +1,109 @@
-#include "voo.h"
-#include "tripulacao.h"
-#include <fstream>
+#include "Voo.h"
 #include <iostream>
-#include <sstream>
 
-Voo::Voo(int codigo, string data, string hora, string origem, string destino,
-         int codigoAviao, int codigoPiloto, int codigoCopiloto,
-         vector<int> codigoComissarios, double tarifa)
+using namespace std;
+
+// Construtor
+Voo::Voo(int codigo, const string& data, const string& hora,
+         const string& origem, const string& destino, const string& codigoAviao,
+         Tripulacao piloto, Tripulacao copiloto, double tarifa, int numAssentos)
     : codigo(codigo), data(data), hora(hora), origem(origem), destino(destino),
-      codigoAviao(codigoAviao), codigoPiloto(codigoPiloto), codigoCopiloto(codigoCopiloto),
-      codigoComissarios(codigoComissarios), tarifa(tarifa) {
-    status = validarTripulacao();
+      codigoAviao(codigoAviao), piloto(piloto), copiloto(copiloto), tarifa(tarifa), ativo(true) {
+    assentos.resize(numAssentos, -1); // -1 indica que o assento estï¿½ livre
 }
 
-//Método para validar tripulação mínima usando Tripulacao
-bool Voo::validarTripulacao() const {
-    if (!Tripulacao::validarCodigo(codigoPiloto) ||
-        !Tripulacao::validarCodigo(codigoCopiloto)) {
-        return false; // Piloto ou copiloto não são válidos
-    }
 
-    for (int comissario : codigoComissarios) {
-        if (!Tripulacao::validarCodigo(comissario)) {
-            return false; // Algum comissário não é válido
-        }
-    }
-
-    return true; // Tripulação válida
+// Mï¿½todos getters
+int Voo::getCodigo() const {
+    return codigo;
 }
 
-int Voo::getCodigo() const { return codigo; }
-string Voo::getData() const { return data; }
-string Voo::getHora() const { return hora; }
-string Voo::getOrigem() const { return origem; }
-string Voo::getDestino() const { return destino; }
-int Voo::getCodigoAviao() const { return codigoAviao; }
-int Voo::getCodigoPiloto() const { return codigoPiloto; }
-int Voo::getCodigoCopiloto() const { return codigoCopiloto; }
-vector<int> Voo::getCodigoComissarios() const { return codigoComissarios; }
-bool Voo::getStatus() const { return status; }
-double Voo::getTarifa() const { return tarifa; }
-
-void Voo::setData(const string& novaData) { data = novaData; }
-void Voo::setHora(const string& novaHora) { hora = novaHora; }
-void Voo::setOrigem(const string& novaOrigem) { origem = novaOrigem; }
-void Voo::setDestino(const string& novoDestino) { destino = novoDestino; }
-void Voo::setTarifa(double novaTarifa) { tarifa = novaTarifa; }
-void Voo::setStatus(bool novoStatus) { status = novoStatus; }
-
-void Voo::exibirInformacoes() const {
-    cout << "Código do Voo: " << codigo << endl;
-    cout << "Data: " << data << endl;
-    cout << "Hora: " << hora << endl;
-    cout << "Origem: " << origem << endl;
-    cout << "Destino: " << destino << endl;
-    cout << "Código do Avião: " << codigoAviao << endl;
-    cout << "Código do Piloto: " << codigoPiloto << endl;
-    cout << "Código do Copiloto: " << codigoCopiloto << endl;
-    cout << "Comissários: ";
-    for (int comissario : codigoComissarios) {
-        cout << comissario << " ";
-    }
-    cout << endl;
-    cout << "Status: " << (status ? "Ativo" : "Inativo") << endl;
-    cout << "Tarifa: " << tarifa << endl;
+string Voo::getOrigem() const {
+    return origem;
 }
 
-// Persistência em arquivo
-void Voo::salvarEmArquivo() const {
-    ofstream arquivo("voos.txt", ios::app);
-    if (!arquivo) {
-        throw runtime_error("Erro ao abrir o arquivo para salvar o voo.");
-    }
-    arquivo << codigo << "|" << data << "|" << hora << "|" << origem << "|"
-            << destino << "|" << codigoAviao << "|" << codigoPiloto << "|"
-            << codigoCopiloto << "|";
-    for (size_t i = 0; i < codigoComissarios.size(); ++i) {
-        arquivo << codigoComissarios[i];
-        if (i != codigoComissarios.size() - 1) arquivo << ",";
-    }
-    arquivo << "|" << status << "|" << tarifa << "\n";
-    arquivo.close();
+string Voo::getDestino() const {
+    return destino;
 }
 
-// Carregar um voo a partir do arquivo
-Voo Voo::carregarVoo(int codigoBusca) {
-    ifstream arquivo("voos.txt");
-    if (!arquivo) {
-        throw runtime_error("Erro ao abrir o arquivo para carregar o voo.");
+bool Voo::isAtivo() const {
+    return ativo;
+}
+
+// Mï¿½todos para ativar/desativar o voo
+void Voo::ativar() {
+    ativo = true;
+}
+
+void Voo::desativar() {
+    ativo = false;
+}
+
+// Verificar se o assento estï¿½ disponï¿½vel
+bool Voo::verificarAssentoDisponivel(int numeroAssento) const {
+    return numeroAssento >= 0 && numeroAssento < assentos.size() && assentos[numeroAssento] == -1;
+}
+
+// Ocupa o assento (marcando como ocupado)
+void Voo::ocuparAssento(int numeroAssento) {
+    if (numeroAssento >= 0 && numeroAssento < assentos.size() && assentos[numeroAssento] == -1) {
+        assentos[numeroAssento] = 1; // Marca o assento como ocupado
+        cout << "Assento " << numeroAssento << " ocupado com sucesso.\n";
+    } else {
+        cout << "Nï¿½mero de assento invï¿½lido ou jï¿½ ocupado.\n";
     }
+}
+
+// Libera o assento (marcando como livre)
+void Voo::liberarAssento(int numeroAssento) {
+    if (numeroAssento >= 0 && numeroAssento < assentos.size()) {
+        assentos[numeroAssento] = -1; // Marca o assento como livre
+        cout << "Assento " << numeroAssento << " liberado com sucesso.\n";
+    } else {
+        cout << "Assento nï¿½o encontrado no voo.\n";
+    }
+}
+
+/*void Voo::salvar(ofstream& arquivo) const {
+    arquivo << codigo << ";"
+            << data << ";"
+            << hora << ";"
+            << origem << ";"
+            << destino << ";"
+            << codigoAviao << ";"
+            << piloto.getCodigo() << ";"
+            << copiloto.getCodigo() << ";"
+            << tarifa << ";"
+            << numAssentos << endl;
+}
+
+void Voo::carregar(ifstream& arquivo) {
     string linha;
-    while (getline(arquivo, linha)) {
+    if (getline(arquivo, linha)) {
         stringstream ss(linha);
-        string item;
-        vector<string> campos;
-        while (getline(ss, item, '|')) {
-            campos.push_back(item);
-        }
-        if (stoi(campos[0]) == codigoBusca) {
-            vector<int> comissarios;
-            stringstream ssComissarios(campos[7]);
-            string comissario;
-            while (getline(ssComissarios, comissario, ',')) {
-                comissarios.push_back(stoi(comissario));
-            }
-            return Voo(stoi(campos[0]), campos[1], campos[2], campos[3], campos[4],
-                       stoi(campos[5]), stoi(campos[6]), stoi(campos[7]),
-                       comissarios, stod(campos[9]));
-        }
-    }
-    throw runtime_error("Voo não encontrado.");
-}
+        string temp;
 
-// Listar todos os voos
-void Voo::listarVoos() {
-    ifstream arquivo("voos.txt");
-    if (!arquivo) {
-        throw runtime_error("Erro ao abrir o arquivo para listar os voos.");
+        getline(ss, temp, ';');
+        codigo = stoi(temp);
+
+        getline(ss, data, ';');
+        getline(ss, hora, ';');
+        getline(ss, origem, ';');
+        getline(ss, destino, ';');
+        getline(ss, codigoAviao, ';');
+
+        getline(ss, temp, ';');
+        int codigoPiloto = stoi(temp);
+        piloto.setCodigo(codigoPiloto);
+
+        getline(ss, temp, ';');
+        int codigoCopiloto = stoi(temp);
+        copiloto.setCodigo(codigoCopiloto);
+
+        getline(ss, temp, ';');
+        tarifa = stod(temp);
+
+        getline(ss, temp, ';');
+        numAssentos = stoi(temp);
     }
-    string linha;
-    while (getline(arquivo, linha)) {
-        cout << linha << endl;
-    }
-    arquivo.close();
-}
+}*/

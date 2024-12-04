@@ -1,48 +1,32 @@
-#include "../include/tripulacao.h"
+#include "Tripulacao.h"
 
-int Tripulacao::contadorCodigo = 1;
-unordered_set<int> Tripulacao::codigos;
-
-Tripulacao::Tripulacao(string nome, string cargo, string telefone) : nome(nome), cargo(cargo), telefone(telefone) {
-    // Garante que o código gerado é único
-    while (codigos.find(contadorCodigo) != codigos.end())
-    {
-        contadorCodigo++;
-    }
-    codigo = contadorCodigo++;
-    codigos.insert(codigo);
-}
+Tripulacao::Tripulacao(int codigo, const string& nome, const string& telefone,
+                       const string& cargo)
+    : codigo(codigo), nome(nome), telefone(telefone), cargo(cargo) {}
 
 int Tripulacao::getCodigo() const { return codigo; }
 string Tripulacao::getNome() const { return nome; }
-string Tripulacao::getCargo() const { return cargo; }
 string Tripulacao::getTelefone() const { return telefone; }
+string Tripulacao::getCargo() const { return cargo; }
 
-void Tripulacao::setNome(const string& novoNome) { nome = novoNome; }
-void Tripulacao::setCargo(const string& novoCargo) { cargo = novoCargo; }
-void Tripulacao::setTelefone(const string& novoTelefone) { telefone = novoTelefone; }
-
-void Tripulacao::exibirInformacoes() const {
-    cout << "Codigo: " << codigo << endl;
-    cout << "Nome: " << nome << endl;
-    cout << "Cargo: " << cargo << endl;
-    cout << "Telefone: " << telefone << endl;
+/*void Tripulacao::salvar(ofstream& arquivo) const {
+    arquivo << codigo << ";"
+            << nome << ";"
+            << telefone << ";"
+            << cargo << endl;
 }
 
-// Métodos estáticos
-bool Tripulacao::validarCodigo(int codigo) {
-    return codigos.find(codigo) != codigos.end();
-}
+void Tripulacao::carregar(ifstream& arquivo) {
+    string linha;
+    if (getline(arquivo, linha)) {
+        stringstream ss(linha);
+        string temp;
 
-void Tripulacao::adicionarCodigo(int codigo) {
-    codigos.insert(codigo);
-}
+        getline(ss, temp, ';');
+        codigo = stoi(temp);
 
-void Tripulacao::removerCodigo(int codigo) {
-    codigos.erase(codigo);
-}
-
-Tripulacao::~Tripulacao() {
-    codigos.erase(codigo); // Remove o código do conjunto
-}
-
+        getline(ss, nome, ';');
+        getline(ss, telefone, ';');
+        getline(ss, cargo, ';');
+    }
+}*/
