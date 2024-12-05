@@ -23,7 +23,7 @@ int main()
     p1.adicionarPontos(10);
     assert(p1.getPontosFidelidade() == 20);
 
-    std::cout << "Todos os testes passaram com sucesso!" << endl;
+    cout << "Todos os testes passaram com sucesso!" << endl;
 
     return 0;
 }
