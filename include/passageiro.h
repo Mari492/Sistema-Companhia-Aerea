@@ -6,7 +6,6 @@ using namespace std;
 
 class Passageiro {
 private:
-    static int contador;
     int codigo;
     string nome;
     string endereco;
@@ -15,7 +14,8 @@ private:
     int pontosFidelidade;
 
 public:
-    Passageiro(string nome, string endereco, string telefone, bool fidelidade = false);
+    Passageiro(int codigo, const string& nome, const string& endereco,
+               const string& telefone, bool fidelidade = false);
 
     int getCodigo() const;
     string getNome() const;
@@ -24,15 +24,10 @@ public:
     bool isFidelidade() const;
     int getPontosFidelidade() const;
 
-    void ativarFidelidade();
     void adicionarPontos(int pontos);
-    void resetarPontos();
 
-    void setNome(const string& nome);
-    void setEndereco(const string& endereco);
-    void setTelefone(const string& telefone);
-
-    void exibirInformacoes() const;
 };
 
 #endif
+
+
