@@ -1,102 +1,43 @@
 #include <iostream>
-#include "../include/Voo.h"
-#include "../include/Tripulacao.h"
-
+#include <cassert>
+#include "Voo.h"
+#include "Tripulacao.h"
 using namespace std;
 
-void testeCriarVooValido() {
-    cout << "Teste 1: Criar um voo com tripulação válida\n" << endl;
-
-    // Criar tripulação
-    Tripulacao piloto("Carlos", "Piloto", "11111-2222");
-    Tripulacao copiloto("Tiago", "Copiloto", "33333-4444");
-    Tripulacao comissario("Julia", "Comissário", "55555-6666");
-
-    // Criar voo
-    vector<int> comissarios = { comissario.getCodigo() };
-    Voo voo1(101, "01/12/2024", "14:30", "São Paulo", "Rio de Janeiro", 123, piloto.getCodigo(), copiloto.getCodigo(), comissarios, 350.0);
-
-    // Exibir informações
-    voo1.exibirInformacoes();
-
-    // Verificar status
-    cout << "\nStatus do Voo: " << (voo1.getStatus() ? "Ativo" : "Inativo") << endl;
-
-    // Salvar no arquivo
-    voo1.salvarEmArquivo();
-}
-
-void testeCriarVooInvalido() {
-    cout << "\nTeste 2: Criar um voo sem piloto\n" << endl;
-
-    // Criar tripulação
-    Tripulacao copiloto("Lucas", "Copiloto", "33333-4444");
-
-    // Criar voo sem piloto
-    vector<int> comissarios = {};
-    Voo voo2(102, "02/12/2024", "16:00", "Belo Horizonte", "Salvador", 124, -1, copiloto.getCodigo(), comissarios, 400.0);
-
-    // Exibir informações
-    voo2.exibirInformacoes();
-
-    // Verificar status
-    cout << "\nStatus do Voo: " << (voo2.getStatus() ? "Ativo" : "Inativo") << endl;
-
-    // Salvar no arquivo
-    voo2.salvarEmArquivo();
-}
-
-void testeCarregarVoo() {
-    cout << "\nTeste 3: Carregar voo do arquivo\n" << endl;
-
-    try {
-        Voo vooCarregado = Voo::carregarVoo(101); // Código do voo salvo no teste 1
-        vooCarregado.exibirInformacoes();
-    } catch (const exception& e) {
-        cerr << e.what() << endl;
-    }
-}
-
-void testeListarVoos() {
-    cout << "\nTeste 4: Listar todos os voos\n" << endl;
-    Voo::listarVoos();
-}
-
-void testeAtualizarVoo() {
-    cout << "\nTeste 5: Atualizar informações do voo\n" << endl;
-
-    try {
-        Voo vooCarregado = Voo::carregarVoo(101); // Código do voo salvo no teste 1
-
-        // Atualizar dados
-        vooCarregado.setData("03/12/2024");
-        vooCarregado.setHora("18:00");
-        vooCarregado.setDestino("Brasília");
-        vooCarregado.setTarifa(450.0);
-        vooCarregado.setStatus(false);
-
-        cout << "Informações atualizadas:\n";
-        vooCarregado.exibirInformacoes();
-
-        // Salvar novamente
-        vooCarregado.salvarEmArquivo();
-    } catch (const exception& e) {
-        cerr << e.what() << endl;
-    }
-}
-
 int main() {
+    // Criando objetos Tripulacao para piloto e copiloto
+    Tripulacao piloto(1, "Carlos", "987564123", "Piloto");
+    Tripulacao copiloto(2, "Ana", "976745567", "Copiloto");
 
-    setlocale(LC_ALL,"");
+    // Criando um objeto Voo
+    Voo voo1(1, "27/12/2024", "14:30", "SÃ£o Paulo", "Rio de Janeiro", "123", piloto, copiloto, 500.00, 10); //Tarifa R$ 500 e nÃºmero de assentos = 10
 
-    cout << "Iniciando testes da classe Voo\n" << endl;
+    // Testando getters
+    assert(voo1.getCodigo() == 1);
+    assert(voo1.getOrigem() == "SÃ£o Paulo");
+    assert(voo1.getDestino() == "Rio de Janeiro");
+    assert(voo1.isAtivo() == true);
 
-    testeCriarVooValido();
-    testeCriarVooInvalido();
-    testeCarregarVoo();
-    testeListarVoos();
-    testeAtualizarVoo();
+    // Testando ativar/desativar voo
+    voo1.desativar();
+    assert(voo1.isAtivo() == false);
 
-    cout << "\nTodos os testes finalizados." << endl;
+    voo1.ativar();
+    assert(voo1.isAtivo() == true);
+
+    // Testando ocupaÃ§Ã£o e liberaÃ§Ã£o de assentos
+    assert(voo1.verificarAssentoDisponivel(0) == true);
+    voo1.ocuparAssento(0);
+    assert(voo1.verificarAssentoDisponivel(0) == false);
+
+    voo1.liberarAssento(0);
+    assert(voo1.verificarAssentoDisponivel(0) == true);
+
+    // Tentativa de ocupar um assento invÃ¡lido
+    voo1.ocuparAssento(11); // Fora do intervalo, mÃ¡x = 10
+
+    cout << "Teste simples para Voo passou com sucesso!" << endl;
+
     return 0;
 }
+
